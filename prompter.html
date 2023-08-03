@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Generator</title>
+    <style>
+        body {
+            text-align: center;
+            background-color:whitesmoke;
+            background-image: url("boy2new.jpeg");
+          }
+
+        #phrase {
+            padding: 15px;
+            background-color:white;
+            width: 20%;
+            border: 5px solid rgb(30,144,255);
+            border-style: ridge;
+            box-shadow: 3px 2px 2px 2px rgb(12, 12, 12);
+            text-align: center;
+            font-size: 20px;
+            color: black;
+        }
+
+        #prompt-holder {
+            width: 50%;
+            height: 50%;
+            margin: 0 auto;
+            border: 5px solid rgb(50,205,50);
+            border-style: ridge;
+            padding: 20px;
+            text-align: center;
+            font-size: 30px;
+            background-color:rgb(246, 247, 248);
+            color:black;
+            box-shadow: 3px 3px 3px 3px rgb(10, 10, 10);
+
+        
+            
+        }
+        #landscape {
+            background-color: rgb(32,178,170);
+        }
+
+        #pixar {
+            background-color: rgb(255,0,255);
+        }
+
+        #racecar {
+            background-color: rgb(255,246,0);
+        }
+
+        .phrase-bttn {
+            box-shadow: 1px 1px 1px 1px rgb(31, 30, 30);
+        }
+
+        #generate {
+            box-shadow: 1px 1px 1px 1px rgb(31, 30, 30);
+            background-color:rgb(0,255,0);
+        }
+
+        #copy-to-clipboard {
+            box-shadow: 1px 1px 1px 1px rgb(31, 30, 30);
+            background-color: rgb(0,114,187);
+        }
+
+        #clear-field {
+            box-shadow: 1px 1px 1px 1px rgb(31, 30, 30);
+            background-color: rgb(255,69,0);
+        }
+
+        
+
+    
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="sweetalert2.all.min.js"></script>
+    
+</head>
+<body>
+    <span style="color:black"><h2><strong>AI Text-To-Image Prompt Generating Software</strong></h2></span>
+    <br>
+    <h3><strong>Example Starting Phrases</strong></h3>
+    <button id="landscape" class="phrase-bttn"><strong>Landscape of</strong></button>
+    <button id="pixar" class="phrase-bttn"><strong>Pixar style little girl</strong></button>
+    <button id="racecar" class="phrase-bttn"><strong>Race car driving</strong></button>    
+    <br><br>
+    <div id="text-input"><input type="text" title="Starting Phrase" id="phrase" placeholder="Enter phrase here"></div>
+    <br>
+    <button id="clear-field"><strong>Clear</strong></button>
+    <br><br><br><br><br>
+    <button id="generate" style="color:rgb(12, 12, 12);"><strong>Generate Prompt</strong></button>
+    <br><br><br><br>
+    <div id="prompt-holder" class="content"></div>
+    </div>
+    <br><br>
+    <button id="copy-to-clipboard" style="color:rgb(7, 7, 7);"><strong>Copy Prompt</strong></button>
+</body>
+
+
+<script>
+    // code to clear input field
+    const clearData = () => {
+        document
+            .getElementById("phrase")
+            .value = "";
+    }
+
+    document
+        .getElementById("clear-field")
+        .addEventListener("click",clearData);
+
+    // code to activate landscape phrase
+    const landscape = () =>{
+        document
+            .getElementById("phrase")
+            .value = "Landscape of";
+    }
+
+    // code to activate pixar style phrase
+    const pixar = () =>{
+        document
+            .getElementById("phrase")
+            .value = "Pixar style little girl";
+    }
+
+    // code to activate racecar phrase
+    const racecar = () =>{
+        document
+            .getElementById("phrase")
+            .value = "Race car driving";
+    }
+
+    // connecting the buttons
+    document.getElementById("landscape").addEventListener("click",landscape);
+    document.getElementById("pixar").addEventListener("click",pixar);
+    document.getElementById("racecar").addEventListener("click",racecar);
+
+    // function for copying the output of the generator div
+    function copyDivToClipboard() {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("prompt-holder"));
+        window.getSelection().removeAllRanges(); // clear current selection
+        window.getSelection().addRange(range); // to select text
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();// to deselect
+
+       }
+    // run button
+    document.getElementById("copy-to-clipboard").addEventListener("click",copyDivToClipboard);
+
+    // generating prompt alert
+    function promptAlert(){
+        Swal.fire("Generating prompt. . .");
+    }
+
+    document.getElementById("generate").addEventListener("click",promptAlert);
+
+    // function to clear the content of a div after it has been copied
+    function clearDiv(){
+
+        const divContent = document.getElementById("prompt-holder");
+        divContent.textContent = "Prompt is copied!";
+    }
+
+    document.getElementById("copy-to-clipboard").addEventListener("click",clearDiv);
+
+    
+
+</script>
+
+
+<script type="module">
+    // code to call gradio api
+    import { client } from "https://cdn.jsdelivr.net/npm/@gradio/client@0.1.4/dist/index.min.js";
+
+    const inputText = document.getElementById("phrase");
+    const generate_prompt = document.getElementById("generate");
+    const prompt_holder = document.getElementById("prompt-holder");
+
+    generate_prompt.addEventListener("click", async () =>{
+        try {
+            const textInput = inputText.value;
+
+            const app = await client("https://ifeanyi-promptgenerator.hf.space/"); //from hugging face
+            const result = await app.predict("/predict", [		
+            textInput, // string  in 'prompt' Textbox component
+        ]);
+            prompt_holder.textContent = result.data;            
+
+            } catch (error){
+                 console.log("Error:",error.message);         
+            }
+    
+        }
+
+        
+);
+</script>
+</html>
